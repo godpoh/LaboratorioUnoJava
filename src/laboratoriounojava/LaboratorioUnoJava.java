@@ -7,6 +7,9 @@ package laboratoriounojava;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  *
@@ -65,7 +68,7 @@ public class LaboratorioUnoJava {
 
         HashMap<Integer, HashMap<String, Object>> indexDictionary = new HashMap<>();
         HashSet<Integer> registedIdNumbers = new HashSet<>();
-        System.out.println("Registro de Personas");
+        System.out.println("Registro de Personas: ");
 
         while (true) {
             int idNumber;
@@ -97,14 +100,14 @@ public class LaboratorioUnoJava {
             while (true) {
                 System.out.println("Ingrese su nombre: ");
                 name = scanner.nextLine();
-                if (name.matches("[a-zA-Z ]+")) {
+                if (name.matches("[A-Z][a-zA-Z ]*")) {
                     if (name.length() > 2) {
                         break;
                     } else {
-                        System.out.println("El nombre debe ser mayor de 2 digitos.");
+                        System.out.println("Error: El nombre debe de iniciar con mayuscula y debe contener mas de 2 letras.");
                     }
                 } else {
-                    System.out.println("Error: Ingrese solo letras y espacios.");
+                    System.out.println("Error: El nombre debe de iniciar con mayuscula y debe contener mas de 2 letras.");
                 }
             }
 
@@ -192,9 +195,100 @@ public class LaboratorioUnoJava {
     }
 
     public static void registrationOfProducts() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Registro de productos: ");
+        String productName;
+        while (true) {
+            System.out.println("Ingrese el nombre del producto");
 
+            productName = scanner.nextLine();
+            if (productName.matches("[A-Z][a-zA-Z ]*")) {
+                if (productName.length() > 1) {
+                    break;
+                } else {
+                    System.out.println("Error: El nombre del producto debe empezar con mayuscula y debe contener almenos mas de 1 letra");
+                }
+            } else {
+                System.out.println("Error: El nombre del producto debe empezar con mayuscula y debe contener almenos mas de 1 letra.");
+                continue;
+            }
+        }
+        int productPrice;
+        while (true) {
+            System.out.println("Defina el precio de cada unidad del producto");
+
+            if (scanner.hasNextInt()) {
+                productPrice = scanner.nextInt();
+                scanner.nextLine();
+                if (productPrice > 0) {
+                    break;
+                } else {
+                    System.out.println("Error: El precio del producto debe ser mayor a 0");
+                }
+            } else {
+                System.out.println("Error: Digite solo numeros. Intentelo de nuevo.");
+                scanner.next();
+            }
+        }
+        int productQuantity;
+        int productQuantityPlus = 0;
+        while (true) {
+            System.out.println("Registro de productos:");
+            System.out.println("Recuerde que si ingresa 10 panes debe colocarle fecha de vencimiento a cada uno: ");
+            System.out.println("Cantidad de productos ingresados: " + productQuantityPlus);
+            System.out.println("1. Agregar 1 " + productName + " al registro");
+            System.out.println("2. Agregar 2 " + productName + " al registro");
+            System.out.println("3. Agregar 3 " + productName + " al registro");
+            System.out.println("4. Agregar 5 " + productName + " al registro");
+            System.out.println("5. Agregar 10 " + productName + " al registro");
+            System.out.println("6. Acabar de ingresar productos");
+
+            if (scanner.hasNextInt()) {
+                productQuantity = scanner.nextInt();
+                scanner.nextLine();
+                if (productQuantity == 1) {
+                    productQuantityPlus++;
+                    continue;
+                } else if (productQuantity == 2) {
+                    productQuantityPlus += 2;
+                    continue;
+                } else if (productQuantity == 3) {
+                    productQuantityPlus += 3;
+                    continue;
+                } else if (productQuantity == 4) {
+                    productQuantityPlus += 5;
+                    continue;
+                } else if (productQuantity == 5) {
+                    productQuantityPlus += 10;
+                    continue;
+                } else if (productQuantity == 6) {
+                    break;
+                } else {
+                    System.out.println("Error: Ingrese una de las opciones validas. Intentelo de nuevo");
+                    continue;
+                }
+            } else {
+                scanner.next();
+                System.out.println("Error: Debe ingresar solo numeros enteros.");
+            }
+        }
+        Date productDueDate = null;
+        while (true) {
+            System.out.println("Ingrese la fecha de vencimiento del(los) productos (formato: Dia/Mes/Year)");
+            String inputDate = scanner.nextLine();
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            dateFormat.setLenient(false);
+            
+            try {
+                productDueDate = dateFormat.parse(inputDate);
+                break;
+            } catch (ParseException eVariableAsProductDueDate){
+                System.out.println("Error: Formato de fecha incorrecto. Intentelo de nuevo.");
+            }
+        }
+    
     }
-
     public static void searchNBuyOfProducts() {
 
     }
@@ -203,9 +297,4 @@ public class LaboratorioUnoJava {
 
     }
 
-    public static void showAllDictionaries(HashMap pIndexDictionary) {
-        for (int i = 0; i < pIndexDictionary.size(); i++) {
-
-        }
-    }
 }
