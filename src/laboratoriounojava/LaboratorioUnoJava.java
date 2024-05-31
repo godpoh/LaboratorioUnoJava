@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -65,9 +67,9 @@ public class LaboratorioUnoJava {
 
     public static void registrationOfPeople() {
         Scanner scanner = new Scanner(System.in);
-
         HashMap<Integer, HashMap<String, Object>> indexDictionary = new HashMap<>();
         HashSet<Integer> registedIdNumbers = new HashSet<>();
+
         System.out.println("Registro de Personas: ");
 
         while (true) {
@@ -195,100 +197,154 @@ public class LaboratorioUnoJava {
     }
 
     public static void registrationOfProducts() {
+        ArrayList<HashMap<String, Object>> productList = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Registro de productos: ");
-        String productName;
         while (true) {
-            System.out.println("Ingrese el nombre del producto");
+            System.out.println("Registro de productos: ");
 
-            productName = scanner.nextLine();
-            if (productName.matches("[A-Z][a-zA-Z ]*")) {
-                if (productName.length() > 1) {
-                    break;
-                } else {
-                    System.out.println("Error: El nombre del producto debe empezar con mayuscula y debe contener almenos mas de 1 letra");
-                }
-            } else {
-                System.out.println("Error: El nombre del producto debe empezar con mayuscula y debe contener almenos mas de 1 letra.");
-                continue;
-            }
-        }
-        int productPrice;
-        while (true) {
-            System.out.println("Defina el precio de cada unidad del producto");
+            String productName;
+            while (true) {
+                System.out.println("Ingrese el nombre del producto");
 
-            if (scanner.hasNextInt()) {
-                productPrice = scanner.nextInt();
-                scanner.nextLine();
-                if (productPrice > 0) {
-                    break;
+                productName = scanner.nextLine();
+                if (productName.matches("[A-Z][a-zA-Z ]*")) {
+                    if (productName.length() > 1) {
+                        break;
+                    } else {
+                        System.out.println("Error: El nombre del producto debe empezar con mayuscula y debe contener almenos mas de 1 letra");
+                    }
                 } else {
-                    System.out.println("Error: El precio del producto debe ser mayor a 0");
-                }
-            } else {
-                System.out.println("Error: Digite solo numeros. Intentelo de nuevo.");
-                scanner.next();
-            }
-        }
-        int productQuantity;
-        int productQuantityPlus = 0;
-        while (true) {
-            System.out.println("Registro de productos:");
-            System.out.println("Recuerde que si ingresa 10 panes debe colocarle fecha de vencimiento a cada uno: ");
-            System.out.println("Cantidad de productos ingresados: " + productQuantityPlus);
-            System.out.println("1. Agregar 1 " + productName + " al registro");
-            System.out.println("2. Agregar 2 " + productName + " al registro");
-            System.out.println("3. Agregar 3 " + productName + " al registro");
-            System.out.println("4. Agregar 5 " + productName + " al registro");
-            System.out.println("5. Agregar 10 " + productName + " al registro");
-            System.out.println("6. Acabar de ingresar productos");
-
-            if (scanner.hasNextInt()) {
-                productQuantity = scanner.nextInt();
-                scanner.nextLine();
-                if (productQuantity == 1) {
-                    productQuantityPlus++;
-                    continue;
-                } else if (productQuantity == 2) {
-                    productQuantityPlus += 2;
-                    continue;
-                } else if (productQuantity == 3) {
-                    productQuantityPlus += 3;
-                    continue;
-                } else if (productQuantity == 4) {
-                    productQuantityPlus += 5;
-                    continue;
-                } else if (productQuantity == 5) {
-                    productQuantityPlus += 10;
-                    continue;
-                } else if (productQuantity == 6) {
-                    break;
-                } else {
-                    System.out.println("Error: Ingrese una de las opciones validas. Intentelo de nuevo");
+                    System.out.println("Error: El nombre del producto debe empezar con mayuscula y debe contener almenos mas de 1 letra.");
                     continue;
                 }
-            } else {
-                scanner.next();
-                System.out.println("Error: Debe ingresar solo numeros enteros.");
+            }
+            int productPrice;
+            while (true) {
+                System.out.println("Defina el precio de cada unidad del producto");
+
+                if (scanner.hasNextInt()) {
+                    productPrice = scanner.nextInt();
+                    scanner.nextLine();
+                    if (productPrice > 0) {
+                        break;
+                    } else {
+                        System.out.println("Error: El precio del producto debe ser mayor a 0");
+                    }
+                } else {
+                    System.out.println("Error: Digite solo numeros. Intentelo de nuevo.");
+                    scanner.next();
+                }
+            }
+
+            int productQuantity = 0;
+            while (true) {
+                System.out.println("Registro de productos:");
+                System.out.println("Recuerde que si ingresa 10 " + productName + " debe colocarle fecha de vencimiento a cada uno: ");
+                System.out.println("Cantidad de productos ingresados: " + productQuantity);
+                System.out.println("1. Agregar 1 " + productName + " al registro");
+                System.out.println("2. Agregar 2 " + productName + " al registro");
+                System.out.println("3. Agregar 3 " + productName + " al registro");
+                System.out.println("4. Agregar 5 " + productName + " al registro");
+                System.out.println("5. Agregar 10 " + productName + " al registro");
+                System.out.println("6. Acabar de ingresar productos");
+
+                if (scanner.hasNextInt()) {
+                    int option = scanner.nextInt();
+                    scanner.nextLine();
+                    switch (option) {
+                        case 1:
+                            productQuantity += 1;
+                            break;
+                        case 2:
+                            productQuantity += 2;
+                            break;
+                        case 3:
+                            productQuantity += 3;
+                            break;
+                        case 4:
+                            productQuantity += 5;
+                            break;
+                        case 5:
+                            productQuantity += 10;
+                            break;
+                        case 6:
+                            break;
+                        default:
+                            System.out.println("Error: Ingrese una opcion valida.");
+                            continue;
+                    }
+                    if (option == 6) {
+                        if (productQuantity > 0) {
+                            break;
+                        } else {
+
+                            System.out.println("Debe de almenos ingresar 1 producto existente");
+                        }
+                    }
+                } else {
+                    scanner.nextLine();
+                    System.out.println("Error: Debe ingresar solo numeros enteros.");
+                }
+            }
+            Date productDueDate = null;
+            while (true) {
+                System.out.println("Ingrese la fecha de vencimiento del(los) productos (formato: Dia/Mes/Year)");
+                String inputDate = scanner.nextLine();
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                dateFormat.setLenient(false);
+
+                try {
+                    productDueDate = dateFormat.parse(inputDate);
+                    break;
+                } catch (ParseException eVariableAsProductDueDate) {
+                    System.out.println("Error: Formato de fecha incorrecto. Intentelo de nuevo.");
+                }
+            }
+            HashMap<String, Object> productInfo = new HashMap<>();
+
+            productInfo.put("Nombre", productName);
+            productInfo.put("Precio", productPrice);
+            productInfo.put("Cantidad", productQuantity);
+            productInfo.put("Fecha de vencimiento", productDueDate);
+
+            productList.add(productInfo);
+
+            System.out.println("Productos Registrados: ");
+            for (int i = 0; i < productList.size(); i++) {
+                HashMap<String, Object> currentProductInfo = productList.get(i);
+                System.out.println("Producto " + (i + 1) + ":");
+                System.out.println("Nombre: " + currentProductInfo.get("Nombre"));
+                System.out.println("Precio c/u: " + currentProductInfo.get("Precio"));
+                System.out.println("Cantidad: " + currentProductInfo.get("Cantidad"));
+                System.out.println("Fecha de Vencimiento: " + currentProductInfo.get("Fecha de vencimiento"));
+                System.out.println();
+            }
+            while (true) {
+                System.out.println("Desea agregar otro producto?");
+                System.out.println("Si ingresa otra opcion que no sean las opciones disponibles sera redigirido al menu principal");
+                System.out.println("1. Si");
+                System.out.println("2. No");
+
+                int option;
+                if (scanner.hasNextInt()) {
+                    option = scanner.nextInt();
+                    scanner.nextLine();
+                } else {
+                    System.out.println("Error: Debe ingresar solo numeros enteros.");
+                    scanner.next();
+                    continue;
+                }
+                if (option != 1) {
+                    System.out.println("Volviendo al menu principal");
+                    return;
+                } else {
+                    break;
+                }
             }
         }
-        Date productDueDate = null;
-        while (true) {
-            System.out.println("Ingrese la fecha de vencimiento del(los) productos (formato: Dia/Mes/Year)");
-            String inputDate = scanner.nextLine();
-            
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            dateFormat.setLenient(false);
-            
-            try {
-                productDueDate = dateFormat.parse(inputDate);
-                break;
-            } catch (ParseException eVariableAsProductDueDate){
-                System.out.println("Error: Formato de fecha incorrecto. Intentelo de nuevo.");
-            }
-        }
-    
     }
+
     public static void searchNBuyOfProducts() {
 
     }
