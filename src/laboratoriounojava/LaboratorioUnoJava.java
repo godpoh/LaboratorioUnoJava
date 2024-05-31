@@ -6,6 +6,7 @@ package laboratoriounojava;
 
 import java.util.Scanner;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  *
@@ -63,16 +64,49 @@ public class LaboratorioUnoJava {
         Scanner scanner = new Scanner(System.in);
 
         HashMap<Integer, HashMap<String, Object>> indexDictionary = new HashMap<>();
-
+        HashSet<Integer> registedIdNumbers = new HashSet<>();
         System.out.println("Registro de Personas");
 
         while (true) {
-            System.out.println("Ingrese su cedula: ");
-            int idNumber = scanner.nextInt();
-            scanner.nextLine();
+            int idNumber;
 
-            System.out.println("Ingrese su nombre: ");
-            String name = scanner.nextLine();
+            while (true) {
+                System.out.println("Ingrese su cedula: ");
+                if (scanner.hasNextInt()) {
+                    idNumber = scanner.nextInt();
+                    String idString = String.valueOf(idNumber);
+                    if (idString.length() != 9) {
+                        System.out.println("Error: La cedula debe de tener 9 numeros.");
+                        continue;
+                    }
+                    if (registedIdNumbers.contains(idNumber)) {
+                        System.out.println("Error: Esta cedula ya ha sido registrada.");
+                        continue;
+                    } else {
+                        registedIdNumbers.add(idNumber);
+                    }
+                    scanner.nextLine();
+                    break;
+                } else {
+                    System.out.println("Error: Ingrese un numero valido y longevidad de 9 numeros.");
+                    scanner.next();
+                }
+            }
+
+            String name;
+            while (true) {
+                System.out.println("Ingrese su nombre: ");
+                name = scanner.nextLine();
+                if (name.matches("[a-zA-Z ]+")) {
+                    if (name.length() > 2) {
+                        break;
+                    } else {
+                        System.out.println("El nombre debe ser mayor de 2 digitos.");
+                    }
+                } else {
+                    System.out.println("Error: Ingrese solo letras y espacios.");
+                }
+            }
 
             String gender;
             while (true) {
@@ -82,7 +116,7 @@ public class LaboratorioUnoJava {
 
                 if (scanner.hasNextInt()) {
                     int optionsGender = scanner.nextInt();
-                    scanner.nextLine(); 
+                    scanner.nextLine();
                     if (optionsGender == 1) {
                         gender = "Masculino";
                         break;
@@ -97,11 +131,28 @@ public class LaboratorioUnoJava {
                     System.out.println("Error: Ingrese un numero valido.");
                 }
             }
+            int age;
+            while (true) {
+                System.out.println("Ingrese su edad:");
+                age = scanner.nextInt();
+                scanner.nextLine();
+
+                if (age < 6) {
+                    System.out.println("No tienes la edad suficiente para registrarte.");
+                    continue;
+                } else if (age > 130) {
+                    System.out.println("No puede ingresar una edad mayor a 130");
+                    continue;
+                } else {
+                    break;
+                }
+            }
 
             HashMap<String, Object> personInfo = new HashMap<>();
             personInfo.put("Cedula", idNumber);
             personInfo.put("Nombre", name);
             personInfo.put("Genero", gender);
+            personInfo.put("Edad", age);
 
             int nextIndex = indexDictionary.size() + 1;
 
@@ -114,22 +165,27 @@ public class LaboratorioUnoJava {
                 System.out.println("Cedula: " + currentPersonInfo.get("Cedula"));
                 System.out.println("Nombre: " + currentPersonInfo.get("Nombre"));
                 System.out.println("Genero: " + currentPersonInfo.get("Genero"));
+                System.out.println("Edad: " + currentPersonInfo.get("Edad"));
                 System.out.println();
             }
+
             while (true) {
                 System.out.println("Desea agregar otra persona?: ");
-                System.out.println("Si ingresa un valor que no sea el indicado se le devolvera al menu principal.");
+                System.out.println("Importante! Si digita otro numero que no sea 1 o 2 sera devuelto al menu principal!");
                 System.out.println("1. Si");
                 System.out.println("2. No");
 
                 if (scanner.hasNextInt()) {
                     int continueInput = scanner.nextInt();
-                    if (continueInput != 2) {
+                    if (continueInput != 1) {
+                        System.out.println("Volviendo al menu principal");
+                        return;
+                    } else {
                         break;
                     }
                 } else {
-                    System.out.println("Error: Ingrese un numero valido");
-                    return;
+                    System.out.println("Error: Debe ingresar una opcion valida");
+                    scanner.next();
                 }
             }
         }
@@ -145,5 +201,11 @@ public class LaboratorioUnoJava {
 
     public static void reports() {
 
+    }
+
+    public static void showAllDictionaries(HashMap pIndexDictionary) {
+        for (int i = 0; i < pIndexDictionary.size(); i++) {
+
+        }
     }
 }
