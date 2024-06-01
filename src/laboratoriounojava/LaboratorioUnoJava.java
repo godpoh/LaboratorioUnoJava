@@ -350,6 +350,17 @@ public class LaboratorioUnoJava {
             System.out.println("No hay productos disponibles. Volviendo al menu principal.");
             return;
         }
+
+        ArrayList<HashMap<String, Object>> cart = new ArrayList<>();
+        ArrayList<HashMap<String, Object>> availableProducts = new ArrayList<>();
+
+        for (HashMap<String, Object> product : productList) {
+            int currentQuantity = (int) product.get("Cantidad");
+            if (currentQuantity > 0) {
+                availableProducts.add(product);
+            }
+        }
+
         System.out.println("Compra de Productos:");
         int confirmIdNumber;
         while (true) {
@@ -376,9 +387,16 @@ public class LaboratorioUnoJava {
             System.out.println("Menu de Productos:");
             // Lo que esto hace es agregar el producto a consola(1. Pan 2. No comprar mas)
             // Se guarda la lista dentro de otro diccionario para que sea mas comodo utilizarlo
-            for (int i = 0; i < productList.size(); i++) {
-                HashMap<String, Object> currentProductInfo = productList.get(i);
-                System.out.println((i + 1) + ". " + currentProductInfo.get("Nombre"));
+            for (int i = 0; i < availableProducts.size(); i++) {
+                HashMap<String, Object> currentProductInfo = availableProducts.get(i);
+                int currentQuantity = (int) currentProductInfo.get("Cantidad");
+                if (currentQuantity > 0) {
+                    System.out.println((i + 1) + ". " + currentProductInfo.get("Nombre"));
+                } else {
+                    availableProducts.remove(i);
+                    // Retrocede el indice despues de borrar el producto
+                    i--;
+                }
             }
             System.out.println((productList.size() + 1) + ". No comprar mas");
 
@@ -399,6 +417,7 @@ public class LaboratorioUnoJava {
                     System.out.println("Debe ingresar un numero. Intentelo de nuevo.");
                 }
             }
+
             if (selectedOption == productList.size() + 1) {
                 System.out.println("Saliendo del menu de compra");
                 break;
@@ -414,15 +433,36 @@ public class LaboratorioUnoJava {
                 int quantityToBuy;
                 while (true) {
                     System.out.println("Ingrese la cantidad que desea comprar:");
-                    System.out.println("Unidades existentes:" + selectedProduct.get("Cantidad"));
+                    System.out.println("Unidades existentes: " + selectedProduct.get("Cantidad"));
 
                     if (scanner.hasNextInt()) {
                         quantityToBuy = scanner.nextInt();
                         scanner.nextLine();
-                        if (quantityToBuy > 0  && quantityToBuy <= (int)selectedProduct.get("Cantidad")) {
+                        if (quantityToBuy > 0 && quantityToBuy <= (int) selectedProduct.get("Cantidad")) {
+                            boolean found = false;
+                            for (HashMap<String, Object> item : cart) {
+                                if (item.get("Nombre").equals(selectedProduct.get("Nombre"))
+                                        && item.get("Fecha de vencimiento").equals(selectedProduct.get("Fecha de vencimiento"))) {
+                                    //Esto actualizaa la cantidad del producto existente
+                                    int currentQuantity = (int) item.get("Cantidad");
+                                    item.put("Cantidad", currentQuantity + quantityToBuy);
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            //Si el producto no estaba en el carrito, sera agregado
+                            if (!found) {
+                                HashMap<String, Object> productToAdd = new HashMap<>(selectedProduct);
+                                productToAdd.put("Cantidad", quantityToBuy);
+                                cart.add(productToAdd);
+                            }
+
+                            //Esto actualiza la cantidad del producto seleccionado
                             int currentQuantity = (int) selectedProduct.get("Cantidad");
                             selectedProduct.put("Cantidad", currentQuantity - quantityToBuy);
-                            System.out.println("Compra existosa de" + quantityToBuy + " " + selectedProduct.get("Nombre"));
+
+                            System.out.println("Se agrego al carrito: " + quantityToBuy + " " + selectedProduct.get("Nombre") + " / Precio cada unidad: " + selectedProduct.get("Precio") + " / Fecha de vencimiento: " + selectedProduct.get("Fecha de vencimiento"));
                             break;
                         } else {
                             System.out.println("Error: Cantidad invalida. Intentelo de nuevo");
@@ -433,9 +473,18 @@ public class LaboratorioUnoJava {
                     }
                 }
 
+                for (int i = 0; i < cart.size(); i++) {
+                    HashMap<String, Object> productsInCart = cart.get(i);
+                    System.out.println("Lista de productos en el carrito: ");
+                    System.out.println("Producto: " + (i + 1));
+                    System.out.println("Nombre: " + productsInCart.get("Nombre"));
+                    System.out.println("Precio cada unidad: " + productsInCart.get("Precio"));
+                    System.out.println("Cantidad: " + productsInCart.get("Cantidad"));
+                    System.out.println("Fecha de vencimiento" + productsInCart.get("Fecha de vencimiento"));
+                    System.out.println("");
+                }
             }
         }
-
     }
 
     public static void reports() {
