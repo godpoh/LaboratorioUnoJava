@@ -12,7 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-
 /**
  *
  * @author Admin
@@ -20,8 +19,9 @@ import java.util.Date;
 public class LaboratorioUnoJava {
 
     private static HashMap<Integer, HashMap<String, Object>> indexDictionary = new HashMap<>();
+    private static ArrayList<HashMap<String, Object>> productList = new ArrayList<>();
     private static HashSet<Integer> registeredIdNumbers = new HashSet<>();
-    
+
     public static void main(String[] args) {
         menu();
     }
@@ -67,7 +67,6 @@ public class LaboratorioUnoJava {
 
     public static void registrationOfPeople() {
         Scanner scanner = new Scanner(System.in);
-
 
         System.out.println("Registro de Personas: ");
 
@@ -196,7 +195,7 @@ public class LaboratorioUnoJava {
     }
 
     public static void registrationOfProducts() {
-        ArrayList<HashMap<String, Object>> productList = new ArrayList<>();
+
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Registro de productos: ");
@@ -346,16 +345,20 @@ public class LaboratorioUnoJava {
 
     public static void searchNBuyOfProducts() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Compra de Productos:");
 
+        if (productList.isEmpty()) {
+            System.out.println("No hay productos disponibles. Volviendo al menu principal.");
+            return;
+        }
+        System.out.println("Compra de Productos:");
         int confirmIdNumber;
         while (true) {
             System.out.println("Digite su cedula:");
-            
+
             if (scanner.hasNextInt()) {
                 confirmIdNumber = scanner.nextInt();
                 scanner.nextLine();
-                
+
                 if (registeredIdNumbers.contains(confirmIdNumber)) {
                     System.out.println("Cedula Confirmada. Bienvenido");
                     break;
@@ -368,6 +371,71 @@ public class LaboratorioUnoJava {
                 System.out.println("Error: Debe ingresar solo digitos. Intentelo de nuevo");
             }
         }
+
+        while (true) {
+            System.out.println("Menu de Productos:");
+            // Lo que esto hace es agregar el producto a consola(1. Pan 2. No comprar mas)
+            // Se guarda la lista dentro de otro diccionario para que sea mas comodo utilizarlo
+            for (int i = 0; i < productList.size(); i++) {
+                HashMap<String, Object> currentProductInfo = productList.get(i);
+                System.out.println((i + 1) + ". " + currentProductInfo.get("Nombre"));
+            }
+            System.out.println((productList.size() + 1) + ". No comprar mas");
+
+            int selectedOption;
+            while (true) {
+                System.out.println("Seleccione un producto. Ingrese la opcion correspondiente");
+                if (scanner.hasNextInt()) {
+                    selectedOption = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (selectedOption >= 1 && selectedOption <= productList.size() + 1) {
+                        break;
+                    } else {
+                        System.out.println("Ingrese una opcion valida. Intentelo de nuevo");
+                        scanner.next();
+                    }
+                } else {
+                    System.out.println("Debe ingresar un numero. Intentelo de nuevo.");
+                }
+            }
+            if (selectedOption == productList.size() + 1) {
+                System.out.println("Saliendo del menu de compra");
+                break;
+            } else {
+                // Se crea una variable local para hacer que la lista sea mas manejable
+                // Si ingreso la 3. Pan en realidad seria 2. Porque las listas empiezan en 0
+                // Por eso se le resta el -1
+                HashMap<String, Object> selectedProduct = productList.get((selectedOption - 1));
+                // Se utiliza la variable local para no estar colocando -1 y acceder directamente al 
+                //indice correcto
+                System.out.println("Ha seleccionado comprar: " + selectedProduct.get("Nombre"));
+
+                int quantityToBuy;
+                while (true) {
+                    System.out.println("Ingrese la cantidad que desea comprar:");
+                    System.out.println("Unidades existentes:" + selectedProduct.get("Cantidad"));
+
+                    if (scanner.hasNextInt()) {
+                        quantityToBuy = scanner.nextInt();
+                        scanner.nextLine();
+                        if (quantityToBuy > 0  && quantityToBuy <= (int)selectedProduct.get("Cantidad")) {
+                            int currentQuantity = (int) selectedProduct.get("Cantidad");
+                            selectedProduct.put("Cantidad", currentQuantity - quantityToBuy);
+                            System.out.println("Compra existosa de" + quantityToBuy + " " + selectedProduct.get("Nombre"));
+                            break;
+                        } else {
+                            System.out.println("Error: Cantidad invalida. Intentelo de nuevo");
+                        }
+                    } else {
+                        scanner.next();
+                        System.out.println("Error: Debe de ingresar solo numeros enteros");
+                    }
+                }
+
+            }
+        }
+
     }
 
     public static void reports() {
