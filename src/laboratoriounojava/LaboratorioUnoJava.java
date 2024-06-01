@@ -11,7 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
 
 /**
  *
@@ -19,9 +19,9 @@ import java.util.List;
  */
 public class LaboratorioUnoJava {
 
-    /**
-     * @param args the command line arguments
-     */
+    private static HashMap<Integer, HashMap<String, Object>> indexDictionary = new HashMap<>();
+    private static HashSet<Integer> registeredIdNumbers = new HashSet<>();
+    
     public static void main(String[] args) {
         menu();
     }
@@ -67,8 +67,7 @@ public class LaboratorioUnoJava {
 
     public static void registrationOfPeople() {
         Scanner scanner = new Scanner(System.in);
-        HashMap<Integer, HashMap<String, Object>> indexDictionary = new HashMap<>();
-        HashSet<Integer> registedIdNumbers = new HashSet<>();
+
 
         System.out.println("Registro de Personas: ");
 
@@ -84,11 +83,11 @@ public class LaboratorioUnoJava {
                         System.out.println("Error: La cedula debe de tener 9 numeros.");
                         continue;
                     }
-                    if (registedIdNumbers.contains(idNumber)) {
+                    if (registeredIdNumbers.contains(idNumber)) {
                         System.out.println("Error: Esta cedula ya ha sido registrada.");
                         continue;
                     } else {
-                        registedIdNumbers.add(idNumber);
+                        registeredIdNumbers.add(idNumber);
                     }
                     scanner.nextLine();
                     break;
@@ -102,14 +101,14 @@ public class LaboratorioUnoJava {
             while (true) {
                 System.out.println("Ingrese su nombre: ");
                 name = scanner.nextLine();
-                if (name.matches("[A-Z][a-zA-Z ]*")) {
+                if (name.matches("([A-Z][a-z]*)(\\s[A-Z][a-z]*)*")) {
                     if (name.length() > 2) {
                         break;
                     } else {
-                        System.out.println("Error: El nombre debe de iniciar con mayuscula y debe contener mas de 2 letras.");
+                        System.out.println("Error: El nombre del producto debe empezar con mayuscula(NO SE PERMITEN 2 MAYUSCULAS EN 1 PALABRA) y debe contener almenos mas de 1 letra");
                     }
                 } else {
-                    System.out.println("Error: El nombre debe de iniciar con mayuscula y debe contener mas de 2 letras.");
+                    System.out.println("Error: El nombre del producto debe empezar con mayuscula(NO SE PERMITEN 2 MAYUSCULAS EN 1 PALABRA) y debe contener almenos mas de 1 letra");
                 }
             }
 
@@ -207,14 +206,14 @@ public class LaboratorioUnoJava {
                 System.out.println("Ingrese el nombre del producto");
 
                 productName = scanner.nextLine();
-                if (productName.matches("[A-Z][a-zA-Z ]*")) {
+                if (productName.matches("([A-Z][a-z]*)(\\s[A-Z][a-z]*)*")) {
                     if (productName.length() > 1) {
                         break;
                     } else {
-                        System.out.println("Error: El nombre del producto debe empezar con mayuscula y debe contener almenos mas de 1 letra");
+                        System.out.println("Error: El nombre del producto debe empezar con mayuscula(NO SE PERMITEN 2 MAYUSCULAS EN 1 PALABRA) y debe contener almenos mas de 1 letra");
                     }
                 } else {
-                    System.out.println("Error: El nombre del producto debe empezar con mayuscula y debe contener almenos mas de 1 letra.");
+                    System.out.println("Error: El nombre del producto debe empezar con mayuscula(NO SE PERMITEN 2 MAYUSCULAS EN 1 PALABRA) y debe contener almenos mas de 1 letra");
                     continue;
                 }
             }
@@ -346,7 +345,29 @@ public class LaboratorioUnoJava {
     }
 
     public static void searchNBuyOfProducts() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Compra de Productos:");
 
+        int confirmIdNumber;
+        while (true) {
+            System.out.println("Digite su cedula:");
+            
+            if (scanner.hasNextInt()) {
+                confirmIdNumber = scanner.nextInt();
+                scanner.nextLine();
+                
+                if (registeredIdNumbers.contains(confirmIdNumber)) {
+                    System.out.println("Cedula Confirmada. Bienvenido");
+                    break;
+                } else {
+                    System.out.println("Cedula NO existente. Redirigiendo al menu principal.");
+                    return;
+                }
+            } else {
+                scanner.next();
+                System.out.println("Error: Debe ingresar solo digitos. Intentelo de nuevo");
+            }
+        }
     }
 
     public static void reports() {
