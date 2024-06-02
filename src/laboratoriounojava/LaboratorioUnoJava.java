@@ -38,6 +38,7 @@ public class LaboratorioUnoJava {
             System.out.println("3. Busqueda y Compra de Productos.");
             System.out.println("4. Reportes.");
             System.out.println("5. Salir");
+            System.out.println("Seleccione una opcion: ");
 
             if (scanner.hasNextInt()) {
                 int optionMenu = scanner.nextInt();
@@ -472,7 +473,7 @@ public class LaboratorioUnoJava {
 
                             bannedUsers.add(confirmIdNumber);
                             break;
-                            
+
                         } else {
                             System.out.println("Error: Cantidad invalida. Intentelo de nuevo");
                         }
@@ -498,6 +499,126 @@ public class LaboratorioUnoJava {
     }
 
     public static void reports() {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("Menu de reportes: ");
+            System.out.println("1. Mostrar el o los productos que cada cliente adquirio, el precio total que pagara y la fecha en que lo compro");
+            System.out.println("2. Mostrar la cantidad de mujeres y hombres que compraron productos");
+            System.out.println("3. Mostrar la lista de los nombres de los productos que no han sido comprados por ningún cliente");
+            System.out.println("4. Mostrar el top 3 de los productos más comprados en un rango de fechas, colocando una fecha de inicio y de fin, y mostrar el nombre del producto");
+            System.out.println("5. Mostrar la lista de personas que durante su compra cambiaron la cantidad de uno o mas productos");
+            System.out.println("6. Volver al menu principal");
+            System.out.println("Seleccione una opcion: ");
+
+            int options;
+            if (scanner.hasNextInt()) {
+                options = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (options) {
+                    case 1:
+                        optionA();
+                        break;
+                    case 2:
+                        optionB();
+                        break;
+                    case 3:
+                        optionC();
+                        break;
+                    case 4:
+                        optionD();
+                        break;
+                    case 5:
+                        optionE();
+                        break;
+                    case 6:
+                        System.out.println("Volviendo al menu principal...");
+                        return;
+                    default:
+                        System.out.println("Error: Debe ingresar una opcion valida.");
+                }
+            } else {
+                scanner.next();
+                System.out.println("Error: Debe ingresar solo numeros enteros");
+            }
+        }
+    }
+
+    public static void optionA() {
+        Date validateDueDate = new Date();
+        // bannedId es el valor 208790566, 205340065, 208769056, y bannedUsers es la variable que se itera
+        // Con lo cual todos los valores de bannedUsers son obtenidos por indexDictionary 
+        System.out.println("Productos adquiridos por cada cliente:");
+        for (Integer bannedId : bannedUsers) {
+            //El ID se utiliza como clave para buscar en el indexDictionary, que contiene información
+            //detallada de cada cliente. Nombre. Cedula. Genero. Etc y toda esta informacion es almacenada
+            //en el diccionario local currentClientInfo hasta se itera nuevamente y se procese datos nuevos.
+            HashMap<String, Object> currentClientInfo = indexDictionary.get(bannedId);
+            System.out.println("Cliente:" + currentClientInfo.get("Nombre") + "Cedula: " + currentClientInfo.get("Cedula"));
+
+            int totalPayment = 0;
+            ArrayList<HashMap<String, Object>> customerPurchases = new ArrayList<>();
+            for (HashMap<String, Object> product : productList) {
+                int quantityBought = (int) product.get("Cantidad");
+                if (quantityBought > 0) {
+                    HashMap<String, Object> productPurchase = new HashMap<>();
+                    productPurchase.put("Nombre", product.get("Nombre"));
+                    productPurchase.put("Precio", product.get("Precio"));
+                    productPurchase.put("Cantidad", quantityBought);
+                    productPurchase.put("Fecha de vencimiento", product.get("Fecha de vencimiento"));
+                    customerPurchases.add(productPurchase);
+
+                    totalPayment += ((int) product.get("Precio") * quantityBought);
+                }
+
+            }
+            System.out.println("Productos Adquiridos: ");
+            for (HashMap<String, Object> purchase : customerPurchases) {
+                System.out.println("- Producto: " + purchase.get("Nombre"));
+                System.out.println("  Precio unitario: " + purchase.get("Precio"));
+                System.out.println("  Cantidad: " + purchase.get("Cantidad"));
+                System.out.println("  Fecha de vencimiento: " + purchase.get("Fecha de vencimiento"));
+
+                Date expirationDate = (Date) purchase.get("Fecha de vencimiento");
+                if (expirationDate.before(validateDueDate)) {
+                    System.out.println("¡Este producto ya vencio!");
+                }
+            }
+            System.out.println("Precio total de la compra: " + totalPayment);
+
+            System.out.println("Fecha de la compra: " + validateDueDate);
+
+            System.out.println(); // Espacio entre clientes
+        }
+    }
+
+    public static void optionB() {
+        int woman = 0;
+        int man = 0;
+        // Tipo de danto que se almacena, Elemento, : separar ambos 
+        //personInfo variable local que es cada "elemento" del diccionario .values obtiene toda los datos
+        for (HashMap<String, Object> personInfo : indexDictionary.values()) {
+            String gender = (String) personInfo.get("Genero");
+            if (gender.equals("Femenino")) {
+                woman++;
+            } else if (gender.equals("Masculino")) {
+                man++;
+            }
+        }
+        System.out.println("Cantidad de mujeres que compraron almenos 1 producto: " + woman);
+        System.out.println("Cantidad de hombres que compraron almenos 1 producto: " + man);
+    }
+
+    public static void optionC() {
+
+    }
+
+    public static void optionD() {
+
+    }
+
+    public static void optionE() {
 
     }
 
