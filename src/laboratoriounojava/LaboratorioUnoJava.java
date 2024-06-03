@@ -513,7 +513,7 @@ public class LaboratorioUnoJava {
             System.out.println("Menu de reportes: ");
             System.out.println("1. Mostrar el o los productos que cada cliente adquirio, el precio total que pagara y la fecha en que lo compro");
             System.out.println("2. Mostrar la cantidad de mujeres y hombres que compraron productos");
-            System.out.println("3. Mostrar la lista de los nombres de los productos que no han sido comprados por ningún cliente");
+            System.out.println("3. Mostrar la lista de los nombres de los productos que no han sido comprados por ningun cliente");
             System.out.println("4. Mostrar el top 3 de los productos más comprados en un rango de fechas, colocando una fecha de inicio y de fin, y mostrar el nombre del producto");
             System.out.println("5. Mostrar la lista de personas que durante su compra cambiaron la cantidad de uno o mas productos");
             System.out.println("6. Volver al menu principal");
@@ -554,41 +554,63 @@ public class LaboratorioUnoJava {
     }
 
     public static void optionA() {
-        Date validateDueDate = new Date();
+    Date validateDueDate = new Date();
 
-        // Este hashmap sobre lista sobre diccionario agrupa los productos por nombre 
-        // Diccionario 0[Lista["Nombre: Pan] Diccionario [Cedula: 205342, Cantidad: 56, Precio Total; 65464]
-        // Diccionario 1[Lista["Nombre: Leche] Diccionario [Cedula: 546546, Cantidad: 24, Precio Total; 38131]
-        HashMap<String, ArrayList<HashMap<String, Object>>> productGroups = new HashMap<>();
+    // Este hashmap sobre lista sobre diccionario agrupa los productos por nombre 
+    // Diccionario 0[Lista["Nombre: Pan] Diccionario [Cedula: 205342, Cantidad: 56, Precio Total; 65464]
+    // Diccionario 1[Lista["Nombre: Leche] Diccionario [Cedula: 546546, Cantidad: 24, Precio Total; 38131]
+    HashMap<String, HashMap<Integer, HashMap<String, Object>>> productGroups = new HashMap<>();
 
-        for (HashMap<String, Object> productInfo : userHistory) {
-            String productName = (String) productInfo.get("Nombre");
+    for (HashMap<String, Object> productInfo : userHistory) {
+        String productName = (String) productInfo.get("Nombre");
+        int idNumber = (int) productInfo.get("Cedula");
 
-            if (!productGroups.containsKey(productName)) {
-                productGroups.put(productName, new ArrayList<>());
-            }
-            productGroups.get(productName).add(productInfo);
+        if (!productGroups.containsKey(productName)) {
+            productGroups.put(productName, new HashMap<>());
         }
 
-        for (String productName : productGroups.keySet()) {
-            System.out.println("Nombre del producto: " + productName);
+        HashMap<Integer, HashMap<String, Object>> userPurchases = productGroups.get(productName);
 
-            for (HashMap<String, Object> productInfo : productGroups.get(productName)) {
+        if (!userPurchases.containsKey(idNumber)) {
+            userPurchases.put(idNumber, new HashMap<>());
+            userPurchases.get(idNumber).put("Cantidad", 0);
+            userPurchases.get(idNumber).put("Precio total", 0);
+        }
 
-                System.out.println("Cedula: " + productInfo.get("Cedula"));
-                System.out.println("Cantidad: " + productInfo.get("Cantidad"));
-                System.out.println("Precio total: " + productInfo.get("Precio total"));
-                System.out.println("Fecha que compro el producto: " + productInfo.get("Fecha de compra"));
-                System.out.println("Fecha de vencimiento: " + productInfo.get("Fecha de vencimiento"));
+        // Actualizar la cantidad y el precio total
+        int currentQuantity = (int) userPurchases.get(idNumber).get("Cantidad");
+        int quantity = (int) productInfo.get("Cantidad");
+        userPurchases.get(idNumber).put("Cantidad", currentQuantity + quantity);
 
-                Date expirationDate = (Date) productInfo.get("Fecha de vencimiento");
-                if (expirationDate.before(validateDueDate)) {
-                    System.out.println("Este producto ya vencio!");
-                }
-                System.out.println();
+        int currentTotalPrice = (int) userPurchases.get(idNumber).get("Precio total");
+        int totalPrice = (int) productInfo.get("Precio total");
+        userPurchases.get(idNumber).put("Precio total", currentTotalPrice + totalPrice);
+
+        userPurchases.get(idNumber).put("Fecha de compra", productInfo.get("Fecha de compra"));
+        userPurchases.get(idNumber).put("Fecha de vencimiento", productInfo.get("Fecha de vencimiento"));
+    }
+
+    for (String productName : productGroups.keySet()) {
+        System.out.println("Nombre del producto: " + productName);
+
+        HashMap<Integer, HashMap<String, Object>> userPurchases = productGroups.get(productName);
+        for (int idNumber : userPurchases.keySet()) {
+            HashMap<String, Object> purchaseInfo = userPurchases.get(idNumber);
+
+            System.out.println("Cedula: " + idNumber);
+            System.out.println("Cantidad: " + purchaseInfo.get("Cantidad"));
+            System.out.println("Precio total: " + purchaseInfo.get("Precio total"));
+            System.out.println("Fecha que compro el producto: " + purchaseInfo.get("Fecha de compra"));
+            System.out.println("Fecha de vencimiento: " + purchaseInfo.get("Fecha de vencimiento"));
+
+            Date expirationDate = (Date) purchaseInfo.get("Fecha de vencimiento");
+            if (expirationDate.before(validateDueDate)) {
+                System.out.println("Este producto ya vencio!");
             }
+            System.out.println();
         }
     }
+}
 
     public static void optionB() {
         int woman = 0;
@@ -652,35 +674,39 @@ public class LaboratorioUnoJava {
     }
 
     public static void optionE() {
-        HashSet<Integer> modifiedIds = new HashSet<>();
+HashSet<Integer> changedQuantityUsers = new HashSet<>();
 
-        for (HashMap<String, Object> purchaseInfo : userHistory) {
-            String productName = (String) purchaseInfo.get("Nombre");
-            int purchasedQuantity = (int) purchaseInfo.get("Cantidad");
-            Date purchaseDate = (Date) purchaseInfo.get("Fecha de compra");
+    for (HashMap<String, Object> purchaseInfo : userHistory) {
+        int idNumber = (int) purchaseInfo.get("Cedula");
+        String productName = (String) purchaseInfo.get("Nombre");
+        int purchasedQuantity = (int) purchaseInfo.get("Cantidad");
 
-            for (HashMap<String, Object> productInfo : productList) {
-                if (productName.equals(productInfo.get("Nombre"))) {
-                    int initialQuantity = (int) productInfo.get("Cantidad");
-                    if (initialQuantity != purchasedQuantity) {
-                        int customerId = (int) purchaseInfo.get("Cedula");
-                        modifiedIds.add(customerId);
-                    }
-                    break; // No es necesario seguir buscando en la lista de productos
-                }
+        // Verificar si el cliente ha realizado compras anteriores
+        if (changedQuantityUsers.contains(idNumber)) {
+            continue;
+        }
+
+        // Verificar si el cliente ha comprado más de una vez el mismo producto
+        boolean changedQuantity = false;
+        for (HashMap<String, Object> previousPurchase : userHistory) {
+            if ((int) previousPurchase.get("Cedula") == idNumber && previousPurchase.get("Nombre").equals(productName)
+                    && (int) previousPurchase.get("Cantidad") != purchasedQuantity) {
+                changedQuantity = true;
+                break;
             }
         }
 
-        if (modifiedIds.isEmpty()) {
-            System.out.println("No se encontraron clientes que modificaron la cantidad de productos durante su compra.");
-        } else {
-            System.out.println("Clientes que modificaron la cantidad de productos durante su compra:");
-            for (int customerId : modifiedIds) {
-                HashMap<String, Object> customerInfo = indexDictionary.get(customerId);
-                System.out.println("Cedula: " + customerId);
-                System.out.println("Nombre: " + customerInfo.get("Nombre"));
-            }
+        // Si el cliente cambió la cantidad, agregarlo a la lista
+        if (changedQuantity) {
+            changedQuantityUsers.add(idNumber);
         }
     }
 
+    // Imprimir la lista de personas que cambiaron la cantidad de uno o más productos
+    System.out.println("Lista de personas que cambiaron la cantidad de uno o más productos:");
+    for (int idNumber : changedQuantityUsers) {
+        HashMap<String, Object> personInfo = indexDictionary.get(idNumber);
+        System.out.println("Cedula: " + personInfo.get("Cedula") + ", Nombre: " + personInfo.get("Nombre"));
+    }
+}
 }
