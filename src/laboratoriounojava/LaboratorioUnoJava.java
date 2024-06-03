@@ -23,6 +23,7 @@ public class LaboratorioUnoJava {
     private static ArrayList<HashMap<String, Object>> productList = new ArrayList<>();
     private static HashSet<Integer> registeredIdNumbers = new HashSet<>();
     private static HashSet<Integer> bannedUsers = new HashSet<>();
+    private static ArrayList<HashMap<String, Object>> userHistory = new ArrayList<>();
 
     public static void main(String[] args) {
         menu();
@@ -443,7 +444,6 @@ public class LaboratorioUnoJava {
                         quantityToBuy = scanner.nextInt();
                         scanner.nextLine();
                         if (quantityToBuy > 0 && quantityToBuy <= (int) selectedProduct.get("Cantidad")) {
-
                             boolean found = false;
                             for (HashMap<String, Object> item : cart) {
                                 if (item.get("Nombre").equals(selectedProduct.get("Nombre"))
@@ -482,6 +482,14 @@ public class LaboratorioUnoJava {
                         System.out.println("Error: Debe de ingresar solo numeros enteros");
                     }
                 }
+                HashMap<String, Object> purchaseInfo = new HashMap<>();
+                purchaseInfo.put("Cedula", confirmIdNumber);
+                purchaseInfo.put("Nombre", selectedProduct.get("Nombre"));
+                purchaseInfo.put("Cantidad", quantityToBuy);
+                purchaseInfo.put("Precio total", quantityToBuy * (int) selectedProduct.get("Precio"));
+                purchaseInfo.put("Fecha de vencimiento", selectedProduct.get("Fecha de vencimiento"));
+                purchaseInfo.put("Fecha de compra", new Date());
+                userHistory.add(purchaseInfo);
 
                 // Mostrar productos en el carrito
                 System.out.println("Lista de productos en el carrito: ");
@@ -547,49 +555,38 @@ public class LaboratorioUnoJava {
 
     public static void optionA() {
         Date validateDueDate = new Date();
-        // bannedId es el valor 208790566, 205340065, 208769056, y bannedUsers es la variable que se itera
-        // Con lo cual todos los valores de bannedUsers son obtenidos por indexDictionary 
-        System.out.println("Productos adquiridos por cada cliente:");
-        for (Integer bannedId : bannedUsers) {
-            //El ID se utiliza como clave para buscar en el indexDictionary, que contiene información
-            //detallada de cada cliente. Nombre. Cedula. Genero. Etc y toda esta informacion es almacenada
-            //en el diccionario local currentClientInfo hasta se itera nuevamente y se procese datos nuevos.
-            HashMap<String, Object> currentClientInfo = indexDictionary.get(bannedId);
-            System.out.println("Cliente:" + currentClientInfo.get("Nombre") + "Cedula: " + currentClientInfo.get("Cedula"));
 
-            int totalPayment = 0;
-            ArrayList<HashMap<String, Object>> customerPurchases = new ArrayList<>();
-            for (HashMap<String, Object> product : productList) {
-                int quantityBought = (int) product.get("Cantidad");
-                if (quantityBought > 0) {
-                    HashMap<String, Object> productPurchase = new HashMap<>();
-                    productPurchase.put("Nombre", product.get("Nombre"));
-                    productPurchase.put("Precio", product.get("Precio"));
-                    productPurchase.put("Cantidad", quantityBought);
-                    productPurchase.put("Fecha de vencimiento", product.get("Fecha de vencimiento"));
-                    customerPurchases.add(productPurchase);
+        // Este hashmap sobre lista sobre diccionario agrupa los productos por nombre 
+        // Diccionario 0[Lista["Nombre: Pan] Diccionario [Cedula: 205342, Cantidad: 56, Precio Total; 65464]
+        // Diccionario 1[Lista["Nombre: Leche] Diccionario [Cedula: 546546, Cantidad: 24, Precio Total; 38131]
+        HashMap<String, ArrayList<HashMap<String, Object>>> productGroups = new HashMap<>();
 
-                    totalPayment += ((int) product.get("Precio") * quantityBought);
-                }
+        for (HashMap<String, Object> productInfo : userHistory) {
+            String productName = (String) productInfo.get("Nombre");
 
+            if (!productGroups.containsKey(productName)) {
+                productGroups.put(productName, new ArrayList<>());
             }
-            System.out.println("Productos Adquiridos: ");
-            for (HashMap<String, Object> purchase : customerPurchases) {
-                System.out.println("- Producto: " + purchase.get("Nombre"));
-                System.out.println("  Precio unitario: " + purchase.get("Precio"));
-                System.out.println("  Cantidad: " + purchase.get("Cantidad"));
-                System.out.println("  Fecha de vencimiento: " + purchase.get("Fecha de vencimiento"));
+            productGroups.get(productName).add(productInfo);
+        }
 
-                Date expirationDate = (Date) purchase.get("Fecha de vencimiento");
+        for (String productName : productGroups.keySet()) {
+            System.out.println("Nombre del producto: " + productName);
+
+            for (HashMap<String, Object> productInfo : productGroups.get(productName)) {
+
+                System.out.println("Cedula: " + productInfo.get("Cedula"));
+                System.out.println("Cantidad: " + productInfo.get("Cantidad"));
+                System.out.println("Precio total: " + productInfo.get("Precio total"));
+                System.out.println("Fecha que compro el producto: " + productInfo.get("Fecha de compra"));
+                System.out.println("Fecha de vencimiento: " + productInfo.get("Fecha de vencimiento"));
+
+                Date expirationDate = (Date) productInfo.get("Fecha de vencimiento");
                 if (expirationDate.before(validateDueDate)) {
-                    System.out.println("¡Este producto ya vencio!");
+                    System.out.println("Este producto ya vencio!");
                 }
+                System.out.println();
             }
-            System.out.println("Precio total de la compra: " + totalPayment);
-
-            System.out.println("Fecha de la compra: " + validateDueDate);
-
-            System.out.println(); // Espacio entre clientes
         }
     }
 
@@ -599,11 +596,24 @@ public class LaboratorioUnoJava {
         // Tipo de danto que se almacena, Elemento, : separar ambos 
         //personInfo variable local que es cada "elemento" del diccionario .values obtiene toda los datos
         for (HashMap<String, Object> personInfo : indexDictionary.values()) {
-            String gender = (String) personInfo.get("Genero");
-            if (gender.equals("Femenino")) {
-                woman++;
-            } else if (gender.equals("Masculino")) {
-                man++;
+            int idNumber = (int) personInfo.get("Cedula");
+
+            // Esto verifica si el cliente ha realizado al menos una compra
+            boolean hasPurchased = false;
+            for (HashMap<String, Object> purchase : userHistory) {
+                if ((int) purchase.get("Cedula") == idNumber) {
+                    hasPurchased = true;
+                    break;
+                }
+            }
+
+            if (hasPurchased) {
+                String gender = (String) personInfo.get("Genero");
+                if (gender.equals("Femenino")) {
+                    woman++;
+                } else if (gender.equals("Masculino")) {
+                    man++;
+                }
             }
         }
         System.out.println("Cantidad de mujeres que compraron almenos 1 producto: " + woman);
@@ -611,7 +621,30 @@ public class LaboratorioUnoJava {
     }
 
     public static void optionC() {
+        HashSet<String> purchasedProducts = new HashSet<>();
 
+        // Obtener los nombres de los productos comprados
+        for (HashMap<String, Object> productInfo : userHistory) {
+            String productName = (String) productInfo.get("Nombre");
+            purchasedProducts.add(productName);
+        }
+
+        // Obtener los nombres de todos los productos
+        HashSet<String> allProducts = new HashSet<>();
+        for (HashMap<String, Object> productInfo : productList) {
+            String productName = (String) productInfo.get("Nombre");
+            allProducts.add(productName);
+        }
+
+        // Calcular los productos que no han sido comprados
+        HashSet<String> nonPurchasedProducts = new HashSet<>(allProducts);
+        nonPurchasedProducts.removeAll(purchasedProducts);
+
+        // Imprimir la lista de productos no comprados
+        System.out.println("Lista de productos no comprados:");
+        for (String productName : nonPurchasedProducts) {
+            System.out.println(productName);
+        }
     }
 
     public static void optionD() {
@@ -619,7 +652,35 @@ public class LaboratorioUnoJava {
     }
 
     public static void optionE() {
+        HashSet<Integer> modifiedIds = new HashSet<>();
 
+        for (HashMap<String, Object> purchaseInfo : userHistory) {
+            String productName = (String) purchaseInfo.get("Nombre");
+            int purchasedQuantity = (int) purchaseInfo.get("Cantidad");
+            Date purchaseDate = (Date) purchaseInfo.get("Fecha de compra");
+
+            for (HashMap<String, Object> productInfo : productList) {
+                if (productName.equals(productInfo.get("Nombre"))) {
+                    int initialQuantity = (int) productInfo.get("Cantidad");
+                    if (initialQuantity != purchasedQuantity) {
+                        int customerId = (int) purchaseInfo.get("Cedula");
+                        modifiedIds.add(customerId);
+                    }
+                    break; // No es necesario seguir buscando en la lista de productos
+                }
+            }
+        }
+
+        if (modifiedIds.isEmpty()) {
+            System.out.println("No se encontraron clientes que modificaron la cantidad de productos durante su compra.");
+        } else {
+            System.out.println("Clientes que modificaron la cantidad de productos durante su compra:");
+            for (int customerId : modifiedIds) {
+                HashMap<String, Object> customerInfo = indexDictionary.get(customerId);
+                System.out.println("Cedula: " + customerId);
+                System.out.println("Nombre: " + customerInfo.get("Nombre"));
+            }
+        }
     }
 
 }
