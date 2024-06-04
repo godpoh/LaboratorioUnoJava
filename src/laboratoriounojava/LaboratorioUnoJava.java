@@ -210,12 +210,31 @@ public class LaboratorioUnoJava {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Registro de productos: ");
-
+                
+            
+            
             String productName;
             while (true) {
                 System.out.println("Ingrese el nombre del producto");
 
                 productName = scanner.nextLine();
+                
+                boolean productExists = false;
+                for (HashMap<String, Object> product : productList) {
+                    String existingProductName = (String) product.get("Nombre");
+                    if (existingProductName.equalsIgnoreCase(productName)) {
+                        productExists = true;
+                        break;
+                    }
+                }
+                
+                if (productExists) {
+                    System.out.println("Erro: El producto ya esta registrado!");
+                } else {
+                    break;
+                }
+                
+                
                 if (productName.matches("([A-Z][a-z]*)(\\s[A-Z][a-z]*)*")) {
                     if (productName.length() > 1) {
                         break;
@@ -409,7 +428,6 @@ public class LaboratorioUnoJava {
                                         verifyQuantityModified.put("Nombre", userName);
                                         verifyQuantityModified.put("Cedula", confirmIdNumber);
                                         ifUserChangeQuantityIndex.add(verifyQuantityModified);
-
                                     }
                                 }
                             }
