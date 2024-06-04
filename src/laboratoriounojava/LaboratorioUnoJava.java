@@ -512,57 +512,77 @@ public class LaboratorioUnoJava {
     public static void optionA() {
         Date validateDueDate = new Date();
 
-        // Este hashmap agrupa los productos por nombre
-        // Cada producto tiene un hashmap que almacena la informacion de cada compra
-        HashMap<String, HashMap<Integer, HashMap<String, Object>>> productGroups = new HashMap<>();
+        // This HashMap groups the purchases by the client's ID number
+        HashMap<Integer, HashMap<String, Object>> clientPurchases = new HashMap<>();
 
-        // Iterar sobre el historial de compras para agrupar la informacion por producto y cliente
-        for (HashMap<String, Object> productInfo : userHistory) {
-            String productName = (String) productInfo.get("Nombre");
-            int idNumber = (int) productInfo.get("Cedula");
+        // Iterate over the purchase history and group the information by client ID
+        for (HashMap<String, Object> purchaseInfo : userHistory) {
+            int idNumber = (int) purchaseInfo.get("Cedula");
+            String productName = (String) purchaseInfo.get("Nombre");
+            int quantity = (int) purchaseInfo.get("Cantidad");
+            int totalPrice = (int) purchaseInfo.get("Precio total");
+            Date purchaseDate = (Date) purchaseInfo.get("Fecha de compra");
+            Date expirationDate = (Date) purchaseInfo.get("Fecha de vencimiento");
 
-            // Si el producto no esta en el hash, agregarlo
-            if (!productGroups.containsKey(productName)) {
-                productGroups.put(productName, new HashMap<>());
-            } 
+            // If the client doesn't exist in the HashMap, add them
+            if (!clientPurchases.containsKey(idNumber)) {
+                clientPurchases.put(idNumber, new HashMap<>());
+            }
 
-            // Obtener el hash de compras para este producto
-            HashMap<Integer, HashMap<String, Object>> userPurchases = productGroups.get(productName);
+            // Get the HashMap for this client's purchases
+            HashMap<String, Object> purchaseDetails = clientPurchases.get(idNumber);
 
-            // Si el cliente no esta en el hash de compras, agregarlo
-            if (!userPurchases.containsKey(idNumber)) {
-                userPurchases.put(idNumber, new HashMap<>());
-            } 
+            // Add or update the purchase information for this product
+            if (purchaseDetails.containsKey(productName)) {
+                // Update the existing purchase information
+                HashMap<String, Object> existingPurchase = (HashMap<String, Object>) purchaseDetails.get(productName);
+                int existingQuantity = (int) existingPurchase.get("Cantidad");
+                int existingTotalPrice = (int) existingPurchase.get("Precio total");
+                existingPurchase.put("Cantidad", existingQuantity + quantity);
+                existingPurchase.put("Precio total", existingTotalPrice + totalPrice);
+            } else {
+                // Add a new purchase entry
+                HashMap<String, Object> newPurchase = new HashMap<>();
+                newPurchase.put("Nombre", productName);
+                newPurchase.put("Cantidad", quantity);
+                newPurchase.put("Precio total", totalPrice);
+                newPurchase.put("Fecha de compra", purchaseDate);
+                newPurchase.put("Fecha de vencimiento", expirationDate);
+                purchaseDetails.put(productName, newPurchase);
+            }
+        }
 
-            // Agregar la informacion de la compra al mapa del cliente
-            HashMap<String, Object> purchaseInfo = userPurchases.get(idNumber);
-            purchaseInfo.put("Cantidad", productInfo.get("Cantidad"));
-            purchaseInfo.put("Precio total", productInfo.get("Precio total"));
-            purchaseInfo.put("Fecha de compra", productInfo.get("Fecha de compra"));
-            purchaseInfo.put("Fecha de vencimiento", productInfo.get("Fecha de vencimiento"));
-        } 
+        // Iterate over the client purchases and print the information
+        for (int idNumber : clientPurchases.keySet()) {
+            System.out.println("Cedula: " + idNumber);
+            HashMap<String, Object> purchaseDetails = clientPurchases.get(idNumber);
+            int totalAmount = 0;
 
-        // Iterar sobre los grupos de productos y mostrar la informacion de cada compra
-        for (String productName : productGroups.keySet()) {
-            System.out.println("Nombre del producto: " + productName);
-
-            HashMap<Integer, HashMap<String, Object>> userPurchases = productGroups.get(productName);
-            for (int idNumber : userPurchases.keySet()) {
-                HashMap<String, Object> purchaseInfo = userPurchases.get(idNumber);
-
-                System.out.println("Cedula: " + idNumber);
-                System.out.println("Cantidad: " + purchaseInfo.get("Cantidad"));
-                System.out.println("Precio total: " + purchaseInfo.get("Precio total"));
-                System.out.println("Fecha que compro el producto: " + purchaseInfo.get("Fecha de compra"));
-                System.out.println("Fecha de vencimiento: " + purchaseInfo.get("Fecha de vencimiento"));
-
+            for (Map.Entry<String, Object> entry : purchaseDetails.entrySet()) {
+                HashMap<String, Object> purchaseInfo = (HashMap<String, Object>) entry.getValue();
+                String productName = (String) purchaseInfo.get("Nombre");
+                int quantity = (int) purchaseInfo.get("Cantidad");
+                int totalPrice = (int) purchaseInfo.get("Precio total");
+                Date purchaseDate = (Date) purchaseInfo.get("Fecha de compra");
                 Date expirationDate = (Date) purchaseInfo.get("Fecha de vencimiento");
+
+                System.out.println("Nombre del producto: " + productName);
+                System.out.println("Cantidad: " + quantity);
+                System.out.println("Precio total: " + totalPrice);
+                System.out.println("Fecha de compra: " + purchaseDate);
+                System.out.println("Fecha de vencimiento: " + expirationDate);
+
                 if (expirationDate.before(validateDueDate)) {
                     System.out.println("Este producto ya vencio!");
-                } 
+                }
+
                 System.out.println();
-            } 
-        } 
+                totalAmount += totalPrice;
+            }
+
+            System.out.println("Total a pagar: " + totalAmount);
+            System.out.println("---------------------------------------------------");
+        }
     }
 
     public static void optionB() {
