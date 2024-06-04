@@ -12,7 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +26,7 @@ public class LaboratorioUnoJava {
     private static HashSet<Integer> registeredIdNumbers = new HashSet<>();
     private static HashSet<Integer> bannedUsers = new HashSet<>();
     private static ArrayList<HashMap<String, Object>> userHistory = new ArrayList<>();
+    private static ArrayList<HashMap<String, Object>> ifUserChangeQuantityIndex = new ArrayList<>();
 
     public static void main(String[] args) {
         menu();
@@ -207,7 +207,6 @@ public class LaboratorioUnoJava {
     }
 
     public static void registrationOfProducts() {
-
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Registro de productos: ");
@@ -245,57 +244,6 @@ public class LaboratorioUnoJava {
                     scanner.next();
                 }
             }
-
-            int productQuantity = 0;
-            while (true) {
-                System.out.println("Registro de productos:");
-                System.out.println("Recuerde que si ingresa 10 " + productName + " debe colocarle fecha de vencimiento a cada uno: ");
-                System.out.println("Cantidad de productos ingresados: " + productQuantity);
-                System.out.println("1. Agregar 1 " + productName + " al registro");
-                System.out.println("2. Agregar 2 " + productName + " al registro");
-                System.out.println("3. Agregar 3 " + productName + " al registro");
-                System.out.println("4. Agregar 5 " + productName + " al registro");
-                System.out.println("5. Agregar 10 " + productName + " al registro");
-                System.out.println("6. Acabar de ingresar productos");
-
-                if (scanner.hasNextInt()) {
-                    int option = scanner.nextInt();
-                    scanner.nextLine();
-                    switch (option) {
-                        case 1:
-                            productQuantity += 1;
-                            break;
-                        case 2:
-                            productQuantity += 2;
-                            break;
-                        case 3:
-                            productQuantity += 3;
-                            break;
-                        case 4:
-                            productQuantity += 5;
-                            break;
-                        case 5:
-                            productQuantity += 10;
-                            break;
-                        case 6:
-                            break;
-                        default:
-                            System.out.println("Error: Ingrese una opcion valida.");
-                            continue;
-                    }
-                    if (option == 6) {
-                        if (productQuantity > 0) {
-                            break;
-                        } else {
-
-                            System.out.println("Debe de almenos ingresar 1 producto existente");
-                        }
-                    }
-                } else {
-                    scanner.nextLine();
-                    System.out.println("Error: Debe ingresar solo numeros enteros.");
-                }
-            }
             Date productDueDate = null;
             while (true) {
                 System.out.println("Ingrese la fecha de vencimiento del(los) productos (formato: Dia/Mes/Year)");
@@ -315,7 +263,6 @@ public class LaboratorioUnoJava {
 
             productInfo.put("Nombre", productName);
             productInfo.put("Precio", productPrice);
-            productInfo.put("Cantidad", productQuantity);
             productInfo.put("Fecha de vencimiento", productDueDate);
 
             productList.add(productInfo);
@@ -326,7 +273,6 @@ public class LaboratorioUnoJava {
                 System.out.println("Producto " + (i + 1) + ":");
                 System.out.println("Nombre: " + currentProductInfo.get("Nombre"));
                 System.out.println("Precio c/u: " + currentProductInfo.get("Precio"));
-                System.out.println("Cantidad: " + currentProductInfo.get("Cantidad"));
                 System.out.println("Fecha de Vencimiento: " + currentProductInfo.get("Fecha de vencimiento"));
                 System.out.println();
             }
@@ -359,21 +305,10 @@ public class LaboratorioUnoJava {
         Scanner scanner = new Scanner(System.in);
 
         ArrayList<HashMap<String, Object>> cart = new ArrayList<>();
-        ArrayList<HashMap<String, Object>> availableProducts = new ArrayList<>();
 
         if (productList.isEmpty()) {
             System.out.println("No hay productos disponibles. Volviendo al menu principal.");
             return;
-        }
-
-        // Filtrar productos disponibles
-        Iterator<HashMap<String, Object>> iterator = productList.iterator();
-        while (iterator.hasNext()) {
-            HashMap<String, Object> product = iterator.next();
-            int currentQuantity = (int) product.get("Cantidad");
-            if (currentQuantity > 0) {
-                availableProducts.add(product);
-            }
         }
 
         System.out.println("Compra de Productos:");
@@ -403,15 +338,25 @@ public class LaboratorioUnoJava {
             }
         }
 
+        String userName = "";
+        for (HashMap<String, Object> userInfo : indexDictionary.values()) {
+            if ((int) userInfo.get("Cedula") == confirmIdNumber) {
+                userName = (String) userInfo.get("Nombre");
+                break;
+            }
+        }
+
         while (true) {
             System.out.println("Menu de Productos:");
             // Mostrar productos disponibles
-            for (int i = 0; i < availableProducts.size(); i++) {
-                HashMap<String, Object> currentProductInfo = availableProducts.get(i);
+            for (int i = 0; i < productList.size(); i++) {
+                HashMap<String, Object> currentProductInfo = productList.get(i);
                 System.out.println((i + 1) + ". " + currentProductInfo.get("Nombre"));
             }
-            System.out.println((availableProducts.size() + 1) + ". No comprar mas");
 
+            System.out.println((productList.size() + 1) + ". No comprar mas");
+
+            int changeCounter = 0;
             int selectedOption;
             while (true) {
                 System.out.println("Seleccione un producto. Ingrese la opcion correspondiente");
@@ -419,7 +364,7 @@ public class LaboratorioUnoJava {
                     selectedOption = scanner.nextInt();
                     scanner.nextLine();
 
-                    if (selectedOption >= 1 && selectedOption <= availableProducts.size() + 1) {
+                    if (selectedOption >= 1 && selectedOption <= productList.size() + 1) {
                         break;
                     } else {
                         System.out.println("Ingrese una opcion valida. Intentelo de nuevo");
@@ -430,51 +375,49 @@ public class LaboratorioUnoJava {
                 }
             }
 
-            if (selectedOption == availableProducts.size() + 1) {
+            if (selectedOption == productList.size() + 1) {
                 System.out.println("Saliendo del menu de compra");
                 break;
             } else {
                 // Obtener el producto seleccionado
-                HashMap<String, Object> selectedProduct = availableProducts.get(selectedOption - 1);
+                HashMap<String, Object> selectedProduct = productList.get(selectedOption - 1);
                 System.out.println("Ha seleccionado comprar: " + selectedProduct.get("Nombre"));
 
                 int quantityToBuy;
-                
-                
-                
+                boolean quantityModified = false;
                 while (true) {
                     System.out.println("Ingrese la cantidad que desea comprar:");
-                    System.out.println("Unidades existentes: " + selectedProduct.get("Cantidad"));
 
                     if (scanner.hasNextInt()) {
                         quantityToBuy = scanner.nextInt();
                         scanner.nextLine();
-                        if (quantityToBuy > 0 && quantityToBuy <= (int) selectedProduct.get("Cantidad")) {
+                        if (quantityToBuy > 0) {
                             boolean found = false;
                             for (HashMap<String, Object> item : cart) {
                                 if (item.get("Nombre").equals(selectedProduct.get("Nombre"))
                                         && item.get("Fecha de vencimiento").equals(selectedProduct.get("Fecha de vencimiento"))) {
                                     // Actualizar la cantidad del producto existente
                                     int currentQuantity = (int) item.get("Cantidad");
-                                    item.put("Cantidad", currentQuantity + quantityToBuy);
+                                    if (currentQuantity != quantityToBuy) {
+                                        item.put("Cantidad", quantityToBuy);
+                                        quantityModified = true;
+                                    }
+
                                     found = true;
-                                    break;
+                                    if (quantityModified == true) {
+                                        HashMap<String, Object> verifyQuantityModified = new HashMap<>();
+                                        verifyQuantityModified.put("Nombre", userName);
+                                        verifyQuantityModified.put("Cedula", confirmIdNumber);
+                                        ifUserChangeQuantityIndex.add(verifyQuantityModified);
+
+                                    }
                                 }
                             }
-
                             // Si el producto no estaba en el carrito, sera agregado
                             if (!found) {
                                 HashMap<String, Object> productToAdd = new HashMap<>(selectedProduct);
                                 productToAdd.put("Cantidad", quantityToBuy);
                                 cart.add(productToAdd);
-                            }
-
-                            // Actualizar la cantidad del producto seleccionado
-                            int currentQuantity = (int) selectedProduct.get("Cantidad");
-                            selectedProduct.put("Cantidad", currentQuantity - quantityToBuy);
-                            System.out.println("Se agrego al carrito: " + quantityToBuy + " " + selectedProduct.get("Nombre") + " / Precio cada unidad: " + selectedProduct.get("Precio") + " / Fecha de vencimiento: " + selectedProduct.get("Fecha de vencimiento"));
-                            if ((int) selectedProduct.get("Cantidad") == 0) {
-                                availableProducts.remove(selectedProduct);
                             }
 
                             bannedUsers.add(confirmIdNumber);
@@ -520,7 +463,7 @@ public class LaboratorioUnoJava {
             System.out.println("1. Mostrar el o los productos que cada cliente adquirio, el precio total que pagara y la fecha en que lo compro");
             System.out.println("2. Mostrar la cantidad de mujeres y hombres que compraron productos");
             System.out.println("3. Mostrar la lista de los nombres de los productos que no han sido comprados por ningun cliente");
-            System.out.println("4. Mostrar el top 3 de los productos más comprados en un rango de fechas, colocando una fecha de inicio y de fin, y mostrar el nombre del producto");
+            System.out.println("4. Mostrar el top 3 de los productos mas comprados en un rango de fechas, colocando una fecha de inicio y de fin, y mostrar el nombre del producto");
             System.out.println("5. Mostrar la lista de personas que durante su compra cambiaron la cantidad de uno o mas productos");
             System.out.println("6. Volver al menu principal");
             System.out.println("Seleccione una opcion: ");
@@ -562,40 +505,37 @@ public class LaboratorioUnoJava {
     public static void optionA() {
         Date validateDueDate = new Date();
 
-        // Este hashmap sobre lista sobre diccionario agrupa los productos por nombre 
-        // Diccionario 0[Lista["Nombre: Pan] Diccionario [Cedula: 205342, Cantidad: 56, Precio Total; 65464]
-        // Diccionario 1[Lista["Nombre: Leche] Diccionario [Cedula: 546546, Cantidad: 24, Precio Total; 38131]
+        // Este hashmap agrupa los productos por nombre
+        // Cada producto tiene un hashmap que almacena la información de cada compra
         HashMap<String, HashMap<Integer, HashMap<String, Object>>> productGroups = new HashMap<>();
 
+        // Iterar sobre el historial de compras para agrupar la información por producto y cliente
         for (HashMap<String, Object> productInfo : userHistory) {
             String productName = (String) productInfo.get("Nombre");
             int idNumber = (int) productInfo.get("Cedula");
 
+            // Si el producto no está en el mapa, agregarlo
             if (!productGroups.containsKey(productName)) {
                 productGroups.put(productName, new HashMap<>());
             }
 
+            // Obtener el mapa de compras para este producto
             HashMap<Integer, HashMap<String, Object>> userPurchases = productGroups.get(productName);
 
+            // Si el cliente no está en el mapa de compras, agregarlo
             if (!userPurchases.containsKey(idNumber)) {
                 userPurchases.put(idNumber, new HashMap<>());
-                userPurchases.get(idNumber).put("Cantidad", 0);
-                userPurchases.get(idNumber).put("Precio total", 0);
             }
 
-            // Actualizar la cantidad y el precio total
-            int currentQuantity = (int) userPurchases.get(idNumber).get("Cantidad");
-            int quantity = (int) productInfo.get("Cantidad");
-            userPurchases.get(idNumber).put("Cantidad", currentQuantity + quantity);
-
-            int currentTotalPrice = (int) userPurchases.get(idNumber).get("Precio total");
-            int totalPrice = (int) productInfo.get("Precio total");
-            userPurchases.get(idNumber).put("Precio total", currentTotalPrice + totalPrice);
-
-            userPurchases.get(idNumber).put("Fecha de compra", productInfo.get("Fecha de compra"));
-            userPurchases.get(idNumber).put("Fecha de vencimiento", productInfo.get("Fecha de vencimiento"));
+            // Agregar la información de la compra al mapa del cliente
+            HashMap<String, Object> purchaseInfo = userPurchases.get(idNumber);
+            purchaseInfo.put("Cantidad", productInfo.get("Cantidad"));
+            purchaseInfo.put("Precio total", productInfo.get("Precio total"));
+            purchaseInfo.put("Fecha de compra", productInfo.get("Fecha de compra"));
+            purchaseInfo.put("Fecha de vencimiento", productInfo.get("Fecha de vencimiento"));
         }
 
+        // Iterar sobre los grupos de productos y mostrar la información de cada compra
         for (String productName : productGroups.keySet()) {
             System.out.println("Nombre del producto: " + productName);
 
@@ -676,58 +616,76 @@ public class LaboratorioUnoJava {
     }
 
     public static void optionD() {
-    Scanner scanner = new Scanner(System.in);
-    
-    // Solicitar las fechas de inicio y fin del rango
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-    Date startDate, endDate;
-    
-    try {
-        System.out.println("Ingrese la fecha de inicio del rango (formato: dd/MM/yyyy): ");
-        startDate = dateFormat.parse(scanner.nextLine());
-        
-        System.out.println("Ingrese la fecha de fin del rango (formato: dd/MM/yyyy): ");
-        endDate = dateFormat.parse(scanner.nextLine());
-    } catch (ParseException e) {
-        System.out.println("Error: Formato de fecha incorrecto.");
-        return;
-    }
-    
-    // Diccionario para almacenar la cantidad total comprada de cada producto
-    HashMap<String, Integer> productSales = new HashMap<>();
-    
-    // Iterar sobre el historial de compras y contar la cantidad de productos comprados en el rango de fechas
-    for (HashMap<String, Object> purchase : userHistory) {
-        Date purchaseDate = (Date) purchase.get("Fecha de compra");
-        
-        // Verificar si la fecha de compra está dentro del rango especificado
-        if (purchaseDate.after(startDate) && purchaseDate.before(endDate)) {
-            String productName = (String) purchase.get("Nombre");
-            int quantity = (int) purchase.get("Cantidad");
-            
-            // Actualizar el contador de ventas para este producto
-            productSales.put(productName, productSales.getOrDefault(productName, 0) + quantity);
-        }
-    }
-    
-    // Ordenar el diccionario por valores (cantidad comprada) en orden descendente
-    List<Map.Entry<String, Integer>> sortedSales = new ArrayList<>(productSales.entrySet());
-    sortedSales.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-    
-    // Imprimir el top 3 de productos más comprados
-    System.out.println("Top 3 de productos mas comprados en el rango de fechas:");
-    int count = 0;
-    for (Map.Entry<String, Integer> entry : sortedSales) {
-        System.out.println(entry.getKey());
-        count++;
-        if (count == 3) {
-            break;
-        }
-    }
-}
+        Scanner scanner = new Scanner(System.in);
 
+        // Solicitar las fechas de inicio y fin del rango
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        Date startDate, endDate;
+
+        try {
+            System.out.println("Ingrese la fecha de inicio del rango (formato: dd/MM/yyyy): ");
+            startDate = dateFormat.parse(scanner.nextLine());
+
+            System.out.println("Ingrese la fecha de fin del rango (formato: dd/MM/yyyy): ");
+            endDate = dateFormat.parse(scanner.nextLine());
+        } catch (ParseException e) {
+            System.out.println("Error: Formato de fecha incorrecto.");
+            return;
+        }
+
+        // Diccionario para almacenar la cantidad total comprada de cada producto
+        HashMap<String, Integer> productSales = new HashMap<>();
+
+        // Iterar sobre el historial de compras y contar la cantidad de productos comprados en el rango de fechas
+        for (HashMap<String, Object> purchase : userHistory) {
+            Date purchaseDate = (Date) purchase.get("Fecha de compra");
+
+            // Verificar si la fecha de compra está dentro del rango especificado
+            if (purchaseDate.after(startDate) && purchaseDate.before(endDate)) {
+                String productName = (String) purchase.get("Nombre");
+                int quantity = (int) purchase.get("Cantidad");
+
+                // Actualizar el contador de ventas para este producto
+                productSales.put(productName, productSales.getOrDefault(productName, 0) + quantity);
+            }
+        }
+
+        // Ordenar el diccionario por valores (cantidad comprada) en orden descendente
+        List<Map.Entry<String, Integer>> sortedSales = new ArrayList<>(productSales.entrySet());
+        sortedSales.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+
+        // Imprimir el top 3 de productos más comprados
+        System.out.println("Top 3 de productos mas comprados en el rango de fechas:");
+        int count = 0;
+        for (Map.Entry<String, Integer> entry : sortedSales) {
+            System.out.println(entry.getKey());
+            count++;
+            if (count == 3) {
+                break;
+            }
+        }
+    }
 
     public static void optionE() {
-    
+        System.out.println("Lista de personas que cambiaron la cantidad de productos durante su compra: ");
+
+        if (ifUserChangeQuantityIndex.isEmpty()) {
+            System.out.println("No hay personas que hayan cambiado la cantidad del producto durante su compra: ");
+            return;
+        }
+        HashSet<Integer> printedIds = new HashSet<>();
+        
+        for (HashMap<String, Object> userInfo : ifUserChangeQuantityIndex) {
+            int idNumber = (int) userInfo.get("Cedula");
+            String name = (String) userInfo.get("Nombre");
+            
+            if (!printedIds.contains(idNumber)) {
+            System.out.println("------------------------------------------------");
+            System.out.println("Cedula: " + idNumber);
+            System.out.println("Nombre: " + name);
+            System.out.println("------------------------------------------------");
+            printedIds.add(idNumber); 
+            }
+        }
     }
 }
