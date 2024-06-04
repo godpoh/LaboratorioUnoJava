@@ -15,10 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author Admin
- */
 public class LaboratorioUnoJava {
 
     private static HashMap<Integer, HashMap<String, Object>> indexDictionary = new HashMap<>();
@@ -74,12 +70,10 @@ public class LaboratorioUnoJava {
 
     public static void registrationOfPeople() {
         Scanner scanner = new Scanner(System.in);
-
         System.out.println("Registro de Personas: ");
 
         while (true) {
             int idNumber;
-
             while (true) {
                 System.out.println("Ingrese su cedula: ");
                 if (scanner.hasNextInt()) {
@@ -111,10 +105,10 @@ public class LaboratorioUnoJava {
                     if (name.length() > 2) {
                         break;
                     } else {
-                        System.out.println("Error: El nombre del producto debe empezar con mayuscula(NO SE PERMITEN 2 MAYUSCULAS EN 1 PALABRA) y debe contener almenos mas de 1 letra");
+                        System.out.println("Error: El nombre del producto debe empezar con mayuscula(NO SE PERMITEN 2 MAYUSCULAS EN 1 PALABRA) y debe contener almenos mas de 2 letra");
                     }
                 } else {
-                    System.out.println("Error: El nombre del producto debe empezar con mayuscula(NO SE PERMITEN 2 MAYUSCULAS EN 1 PALABRA) y debe contener almenos mas de 1 letra");
+                    System.out.println("Error: El nombre del producto debe empezar con mayuscula(NO SE PERMITEN 2 MAYUSCULAS EN 1 PALABRA) y debe contener almenos mas de 2 letra");
                 }
             }
 
@@ -170,7 +164,6 @@ public class LaboratorioUnoJava {
             personInfo.put("Edad", age);
 
             int nextIndex = indexDictionary.size() + 1;
-
             indexDictionary.put(nextIndex, personInfo);
 
             System.out.println("Informacion registrada:");
@@ -210,15 +203,13 @@ public class LaboratorioUnoJava {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Registro de productos: ");
-                
-            
-            
+
             String productName;
             while (true) {
                 System.out.println("Ingrese el nombre del producto");
 
                 productName = scanner.nextLine();
-                
+
                 boolean productExists = false;
                 for (HashMap<String, Object> product : productList) {
                     String existingProductName = (String) product.get("Nombre");
@@ -227,14 +218,13 @@ public class LaboratorioUnoJava {
                         break;
                     }
                 }
-                
+
                 if (productExists) {
-                    System.out.println("Erro: El producto ya esta registrado!");
+                    System.out.println("Error: El producto ya esta registrado!");
                 } else {
                     break;
                 }
-                
-                
+
                 if (productName.matches("([A-Z][a-z]*)(\\s[A-Z][a-z]*)*")) {
                     if (productName.length() > 1) {
                         break;
@@ -322,7 +312,6 @@ public class LaboratorioUnoJava {
 
     public static void searchNBuyOfProducts() {
         Scanner scanner = new Scanner(System.in);
-
         ArrayList<HashMap<String, Object>> cart = new ArrayList<>();
 
         if (productList.isEmpty()) {
@@ -375,7 +364,6 @@ public class LaboratorioUnoJava {
 
             System.out.println((productList.size() + 1) + ". No comprar mas");
 
-            int changeCounter = 0;
             int selectedOption;
             while (true) {
                 System.out.println("Seleccione un producto. Ingrese la opcion correspondiente");
@@ -387,10 +375,11 @@ public class LaboratorioUnoJava {
                         break;
                     } else {
                         System.out.println("Ingrese una opcion valida. Intentelo de nuevo");
-                        scanner.next();
+
                     }
                 } else {
                     System.out.println("Debe ingresar un numero. Intentelo de nuevo.");
+                    scanner.next();
                 }
             }
 
@@ -524,36 +513,36 @@ public class LaboratorioUnoJava {
         Date validateDueDate = new Date();
 
         // Este hashmap agrupa los productos por nombre
-        // Cada producto tiene un hashmap que almacena la información de cada compra
+        // Cada producto tiene un hashmap que almacena la informacion de cada compra
         HashMap<String, HashMap<Integer, HashMap<String, Object>>> productGroups = new HashMap<>();
 
-        // Iterar sobre el historial de compras para agrupar la información por producto y cliente
+        // Iterar sobre el historial de compras para agrupar la informacion por producto y cliente
         for (HashMap<String, Object> productInfo : userHistory) {
             String productName = (String) productInfo.get("Nombre");
             int idNumber = (int) productInfo.get("Cedula");
 
-            // Si el producto no está en el mapa, agregarlo
+            // Si el producto no esta en el hash, agregarlo
             if (!productGroups.containsKey(productName)) {
                 productGroups.put(productName, new HashMap<>());
-            }
+            } 
 
-            // Obtener el mapa de compras para este producto
+            // Obtener el hash de compras para este producto
             HashMap<Integer, HashMap<String, Object>> userPurchases = productGroups.get(productName);
 
-            // Si el cliente no está en el mapa de compras, agregarlo
+            // Si el cliente no esta en el hash de compras, agregarlo
             if (!userPurchases.containsKey(idNumber)) {
                 userPurchases.put(idNumber, new HashMap<>());
-            }
+            } 
 
-            // Agregar la información de la compra al mapa del cliente
+            // Agregar la informacion de la compra al mapa del cliente
             HashMap<String, Object> purchaseInfo = userPurchases.get(idNumber);
             purchaseInfo.put("Cantidad", productInfo.get("Cantidad"));
             purchaseInfo.put("Precio total", productInfo.get("Precio total"));
             purchaseInfo.put("Fecha de compra", productInfo.get("Fecha de compra"));
             purchaseInfo.put("Fecha de vencimiento", productInfo.get("Fecha de vencimiento"));
-        }
+        } 
 
-        // Iterar sobre los grupos de productos y mostrar la información de cada compra
+        // Iterar sobre los grupos de productos y mostrar la informacion de cada compra
         for (String productName : productGroups.keySet()) {
             System.out.println("Nombre del producto: " + productName);
 
@@ -570,10 +559,10 @@ public class LaboratorioUnoJava {
                 Date expirationDate = (Date) purchaseInfo.get("Fecha de vencimiento");
                 if (expirationDate.before(validateDueDate)) {
                     System.out.println("Este producto ya vencio!");
-                }
+                } 
                 System.out.println();
-            }
-        }
+            } 
+        } 
     }
 
     public static void optionB() {
@@ -658,7 +647,7 @@ public class LaboratorioUnoJava {
         for (HashMap<String, Object> purchase : userHistory) {
             Date purchaseDate = (Date) purchase.get("Fecha de compra");
 
-            // Verificar si la fecha de compra está dentro del rango especificado
+            // Verificar si la fecha de compra esta dentro del rango especificado
             if (purchaseDate.after(startDate) && purchaseDate.before(endDate)) {
                 String productName = (String) purchase.get("Nombre");
                 int quantity = (int) purchase.get("Cantidad");
@@ -668,11 +657,10 @@ public class LaboratorioUnoJava {
             }
         }
 
-        // Ordenar el diccionario por valores (cantidad comprada) en orden descendente
+        // Ordenar el diccionario por valores (la cantidad comprada) en orden descendente
         List<Map.Entry<String, Integer>> sortedSales = new ArrayList<>(productSales.entrySet());
         sortedSales.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-        // Imprimir el top 3 de productos más comprados
         System.out.println("Top 3 de productos mas comprados en el rango de fechas:");
         int count = 0;
         for (Map.Entry<String, Integer> entry : sortedSales) {
@@ -692,17 +680,17 @@ public class LaboratorioUnoJava {
             return;
         }
         HashSet<Integer> printedIds = new HashSet<>();
-        
+
         for (HashMap<String, Object> userInfo : ifUserChangeQuantityIndex) {
             int idNumber = (int) userInfo.get("Cedula");
             String name = (String) userInfo.get("Nombre");
-            
+
             if (!printedIds.contains(idNumber)) {
-            System.out.println("------------------------------------------------");
-            System.out.println("Cedula: " + idNumber);
-            System.out.println("Nombre: " + name);
-            System.out.println("------------------------------------------------");
-            printedIds.add(idNumber); 
+                System.out.println("------------------------------------------------");
+                System.out.println("Cedula: " + idNumber);
+                System.out.println("Nombre: " + name);
+                System.out.println("------------------------------------------------");
+                printedIds.add(idNumber);
             }
         }
     }
